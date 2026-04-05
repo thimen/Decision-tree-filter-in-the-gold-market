@@ -1,0 +1,121 @@
+\documentclass{report}
+
+
+
+\newcommand{\head}[1]{\textnormal{\textbf{#1}}}
+\title{Example Document}
+\author{authors}
+\setcounter{tocdepth}{3}
+\renewcommand{\figurename}{Figure}
+\renewcommand{\listfigurename}{List of Figures}
+
+
+\input{packagesAndCommands/usepackage.tex} 
+\input{packagesAndCommands/commands.tex}
+
+
+\begin{document}
+\thispagestyle{empty}
+\begin{center}
+\begin{LARGE}\sffamily
+A Decision-Tree Filter\\
+for Rule-Based Trading
+\end{LARGE}
+
+\vspace{1.2cm}
+
+\begin{Large}\sffamily
+A Study of Decision-Tree Signal Filtering in the Gold Market
+\end{Large}
+
+\vspace{1.2cm}
+
+\begin{Large}\sffamily
+Ida Maijgren\\[0.4cm]
+Thim Thor
+\end{Large}
+\end{center}
+%\remarksupervisor{NOTE - Please do not delete remarks nor guidelines. You can reply to remarks as exemplified below using your own remark command. To compile a version without remarks, just comment the command
+%usepackage\{todonotes\}, and uncomment the command usepackage[disable]\{todonotes\} in the beginning of the file ``usepackage.tex''. You can also choose the color for your remarks in the file ``commands.tex''. I would recommend one color per student. Please do not choose yellow nor light blue, since these are reserved for remarks and guidelines.}
+%\remarkorange{Done. (example)}
+%\remarkorange{I do not agree because of this/that. (example)}
+\vfill
+\noindent
+\begin{minipage}[t]{0.62\textwidth}
+\begin{Large}\sffamily
+Department of Computer\\
+and Systems Sciences
+\end{Large}
+
+\vspace{0.5cm}
+
+\begin{small}\sffamily
+Degree project 15 credits\\
+Computer and Systems Sciences\\
+Degree project at the bachelor/master level\\
+Spring term 2026\\
+Supervisor: Mateus de Oliveira Oliveira\\
+Swedish title: Ett beslutstradsfilter for regelbaserad handel
+\end{small}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.30\textwidth}
+\centering
+\includegraphics[width=0.8\textwidth]{figures/templateFigures/SU-Logga}
+\end{minipage}
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\clearpage
+
+\pagestyle{empty}
+\setcounter{page}{1}
+\pagenumbering{roman}
+\pagestyle{plain}
+\input{auxiliaryChapters/00-DVKKandidatuppsats}
+\input{auxiliaryChapters/01-Abstract}
+\input{auxiliaryChapters/02-Synopsis}
+\input{auxiliaryChapters/03-Acknowledgements}
+
+
+
+\newpage
+\thispagestyle{plain}
+\tableofcontents
+%\thispagestyle{empty}
+
+
+
+
+\listoffigures
+%\thispagestyle{empty}
+\addcontentsline{toc}{chapter}{List of Figures}
+
+\listoftables
+%\thispagestyle{plain}
+\addcontentsline{toc}{chapter}{List of Tables}
+
+\input{auxiliaryChapters/04-ListAbbreviations}
+%\pagenumbering{arabic} % Sets page numbering style to arabic
+%\setcounter{page}{1} % Resets page counter to 1
+%\pagestyle{plain}
+
+\input{mainChapters/01-Introduction}
+\input{mainChapters/02-Background}
+\input{mainChapters/03-Methodology}
+\input{mainChapters/04-MainResults}
+\input{mainChapters/05-Conclusion}
+
+\bibliographystyle{agsm}
+\bibliography{bibliographyFiles/bibliography}
+\addtocontents{toc}{\bigskip}
+\addcontentsline{toc}{part}{Bibliography}
+
+\appendix
+\cleardoublepage
+\addtocontents{toc}{\bigskip}
+\addcontentsline{toc}{part}{Appendices}
+
+\input{appendices/01-Appendix}
+\input{appendices/bibliographyCompilation}
+%\input{appendices/reflections}
+\end{document}

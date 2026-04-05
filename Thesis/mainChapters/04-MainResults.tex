@@ -1,0 +1,248 @@
+\chapter{Main Results}
+\label{chapter:MainResults}
+
+\section{Technical Development}
+
+For reproducibility purposes, the code, configuration files, and generated
+result artefacts used in this chapter are included in the project repository
+submitted together with the thesis. At the time of writing, no public archival
+link had been created for the repository, so reproducibility is supported
+through the submitted codebase and the exported experiment outputs.
+
+The implementation is organized around a typed experiment configuration, a
+single Python entry point, and an export step that translates the trained
+decision tree into deterministic MQL5 logic. This structure makes it possible
+to reproduce the complete experiment from one configuration file while still
+keeping the deployed strategy readable.
+
+\subsection{Experiment Configuration}
+
+The full experiment is controlled through one nested JSON configuration file.
+The most important parts of the thesis configuration are the market-data
+window, the indicator parameters, the tree settings, and the backtest
+assumptions:
+
+\begin{lstlisting}[language={},caption={Simplified thesis configuration for the XAUUSD H1 experiment.}]
+{
+  "results_dir": "results_xauusd_h1_3y",
+  "experiment": {
+    "market_data": {
+      "symbol": "XAUUSD",
+      "timeframe": "H1",
+      "utc_from": "2022-01-01T00:00:00Z",
+      "utc_to": "2024-12-31T23:00:00Z"
+    },
+    "tree": {
+      "enabled": true,
+      "max_depth_grid": [2, 3, 4, 5, 6],
+      "min_samples_leaf_grid": [5, 10, 20, 50],
+      "holdout_ratio": 0.2,
+      "time_series_splits": 3,
+      "confidence_bin_count": 5
+    },
+    "backtest": {
+      "cost_bps": 5.0,
+      "take_profit_pct": 0.06,
+      "stop_loss_pct": 0.03
+    }
+  }
+}
+\end{lstlisting}
+
+The full configuration file fixes the exact \texttt{XAUUSD} H1 experiment
+discussed in this chapter, while the listing above highlights the most
+important thesis parameters. Using one canonical configuration file reduces
+ambiguity between the reported thesis setup and the executed code.
+
+\subsection{Running the Experiment}
+
+Once credentials are supplied through environment variables, the complete
+experiment can be reproduced with one command:
+
+\begin{lstlisting}[language=bash,caption={Running the thesis experiment from the command line.}]
+python -m src.experiment \
+  --config configs/run_config.xauusd_h1.json
+\end{lstlisting}
+
+This command retrieves the market data from a running MT5 terminal, constructs
+the indicator features, generates candidate signals, trains the decision tree,
+partitions the test signals into confidence bands, and writes the output
+artefacts. The most important artefacts are \texttt{metrics.csv},
+\texttt{trades.csv}, \texttt{rates.csv}, \texttt{equity\_curves.csv},
+\texttt{confidence\_scores.csv}, and \texttt{config\_used.json}.
+
+\subsection{Export to MQL5}
+
+After training, the final decision tree is exported as deterministic
+\texttt{if}-\texttt{then} logic in MQL5. In simplified form, the exported code
+looks as follows:
+
+\begin{lstlisting}[language=C++,caption={Simplified structure of the exported MQL5 decision tree.}]
+double EvaluateDecisionTreeProbability(...)
+{
+   if (rsi <= 42.5)
+   {
+      return 0.1913043478;
+   }
+   else
+   {
+      if (buy_vote_count <= 3.5)
+      {
+         return 0.3919597990;
+      }
+      else
+      {
+         return 0.5161290323;
+      }
+   }
+}
+\end{lstlisting}
+
+The exact thresholds vary with the trained model, but the important point is
+that the exported tree remains transparent and directly inspectable. This is
+consistent with the goal of the thesis: to use machine learning as an
+interpretable signal-evaluation layer rather than as an opaque forecasting
+model.
+
+\section{Experimental Results}
+
+The final experiment was conducted on \texttt{XAUUSD} H1 data requested from
+1 January 2022 to 31 December 2024. Because the market is closed on weekends,
+the retrieved dataset spans from 3 January 2022, 01:00 UTC, to 31 December
+2024, 23:00 UTC and contains 17,749 hourly bars. The decision tree was trained
+on development-period candidate signals and evaluated on a held-out
+out-of-sample segment beginning on 28 May 2024, 14:00 UTC.
+
+\begin{table}[htbp]
+\centering
+\caption{Experimental setup for the final XAUUSD H1 run.}
+\label{tab:xauusd-h1-setup}
+\small
+\begin{tabular}{p{0.34\textwidth}p{0.52\textwidth}}
+\toprule
+Item & Value \\
+\midrule
+Instrument & \texttt{XAUUSD} \\
+Timeframe & H1 \\
+Requested period & 2022-01-01 to 2024-12-31 (UTC) \\
+Retrieved observations & 17,749 hourly bars \\
+Observed data span & 2022-01-03 01:00 to 2024-12-31 23:00 (UTC) \\
+Development candidate signals & 1,148 \\
+Out-of-sample candidate signals & 288 \\
+Out-of-sample window & 2024-05-28 14:00 to 2024-12-31 23:00 (UTC) \\
+Selected tree parameters & max depth = 3, min leaf size = 50 \\
+Confidence grouping & 5 bands derived by quantile binning \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:xauusd-h1-setup} summarizes the final experimental setup. The
+important point is that the thesis results are based on one fixed configuration
+and one fixed out-of-sample period. This reduces flexibility in the evaluation
+stage and makes it easier to interpret the confidence-band results as a
+comparison within a controlled setting.
+
+\begin{table}[htbp]
+\centering
+\caption{Out-of-sample baseline performance on XAUUSD H1.}
+\label{tab:xauusd-h1-baselines}
+\footnotesize
+\begin{tabular}{lrrrrrr}
+\toprule
+Strategy & Return & Sharpe & Max DD & Trades & Win rate & Profit factor \\
+\midrule
+EMA & 0.59\% & 1.65 & -0.27\% & 72  & 43.06\% & 1.51 \\
+RSI & 0.79\% & 0.74 & -1.50\% & 210 & 38.57\% & 1.26 \\
+MACD & 0.53\% & 0.86 & -1.01\% & 186 & 37.10\% & 1.18 \\
+DMI & 1.64\% & 1.59 & -1.36\% & 282 & 40.43\% & 1.36 \\
+KST & 0.16\% & 0.37 & -0.84\% & 152 & 34.87\% & 1.07 \\
+MFI & 0.66\% & 0.50 & -2.08\% & 308 & 36.36\% & 1.14 \\
+Multi-indicator & 1.27\% & 1.06 & -1.91\% & 241 & 40.25\% & 1.35 \\
+Buy-and-hold & 11.80\% & 1.42 & -8.79\% & 0 & --- & --- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:xauusd-h1-baselines} shows that the unfiltered multi-indicator
+strategy remained profitable out of sample, with a total return of 1.27\%, a
+Sharpe ratio of 1.06, and a profit factor of 1.35. Among the single-indicator
+baselines, the DMI strategy achieved the strongest out-of-sample total return,
+while buy-and-hold unsurprisingly produced the largest absolute return over the
+same market period. However, buy-and-hold also incurred a substantially larger
+drawdown than the active trading strategies. This makes the multi-indicator
+baseline a reasonable comparison point for the confidence-filtered variants.
+
+\begin{table}[htbp]
+\centering
+\caption{Out-of-sample performance by decision-tree confidence range.}
+\label{tab:xauusd-h1-confidence}
+\footnotesize
+\begin{tabular}{lrrrrrrr}
+\toprule
+Range & Min & Max & Return & Sharpe & Trades & Win rate & Profit factor \\
+\midrule
+Range 1 & 0.1800 & 0.1913 & 0.01\%  & 0.04  & 66 & 33.33\% & 1.00 \\
+Range 2 & 0.2632 & 0.2632 & -0.44\% & -2.47 & 27 & 14.81\% & 0.35 \\
+Range 3 & 0.3621 & 0.3864 & 0.14\%  & 0.59  & 27 & 40.74\% & 1.38 \\
+Range 4 & 0.3920 & 0.3920 & 1.82\%  & 2.45  & 53 & 73.58\% & 5.57 \\
+Range 5 & 0.4348 & 0.5161 & -0.24\% & -0.59 & 68 & 30.88\% & 0.89 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:xauusd-h1-confidence} contains the central result of the thesis.
+The confidence bands do not form a perfectly monotonic ordering. In
+particular, Range~5 did not outperform Range~4 even though it corresponds to a
+higher predicted probability interval. Nevertheless, the table still shows that
+the decision-tree confidence score was useful in this experiment for isolating a
+stronger subset of candidate trades. Range~4 outperformed the unfiltered
+multi-indicator baseline on total return, Sharpe ratio, win rate, and profit
+factor, while Ranges~2 and~5 performed poorly. This indicates that the
+confidence score was informative in the selected setting, but not uniformly
+increasing in usefulness across all bins.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/thesisFigures/xauusd_h1_3y_equity_curves}
+\caption[Out-of-sample equity curves]{Out-of-sample equity curves for buy-and-hold, the multi-indicator baseline, and Range 4.}
+\label{fig:xauusd-h1-equity}
+\end{figure}
+
+Figure~\ref{fig:xauusd-h1-equity} compares the out-of-sample equity paths of
+the main baseline, buy-and-hold, and the strongest decision-tree confidence
+band. The buy-and-hold curve ends highest in absolute terms because the gold
+market appreciated over the evaluation period, but it also experienced a larger
+drawdown than the active trading strategies. The important comparison for the
+research question is therefore between the unfiltered multi-indicator baseline
+and Range~4. In this comparison, Range~4 ends higher than the unfiltered
+baseline and is consistent with the higher Sharpe ratio, win rate, and profit
+factor reported in Table~\ref{tab:xauusd-h1-confidence}.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/thesisFigures/xauusd_h1_3y_confidence_ranges}
+\caption[Confidence-range return and win rate]{Out-of-sample total return and win rate across the five confidence ranges.}
+\label{fig:xauusd-h1-confidence-plot}
+\end{figure}
+
+Figure~\ref{fig:xauusd-h1-confidence-plot} makes the non-monotonic pattern more
+visible. Range~4 stands out clearly, while Range~2 is the weakest group and
+Range~5 falls back below both the baseline and the best confidence band. This
+means that the decision-tree confidence should not be interpreted as a simple
+``higher is always better'' score. Instead, in this experiment it functioned as
+a useful but imperfect filtering signal that isolated one particularly strong
+band of candidate trades from weaker ones.
+
+\section{Summary of Main Findings}
+
+Three findings are especially important. First, the unfiltered multi-indicator
+strategy remained profitable in the held-out market segment, which means the
+baseline itself was not degenerate. Second, the decision-tree confidence score
+was useful for separating out one stronger out-of-sample band, because the
+strongest band materially outperformed the baseline on several core metrics.
+Third, the
+relationship was not strictly monotonic across all five bands. The most
+defensible conclusion is therefore not that higher confidence always implied
+better trading performance, but that the confidence score contained useful
+information for filtering candidate signals in the selected \texttt{XAUUSD} H1
+setting.

@@ -1,0 +1,63 @@
+
+\chapter*{Synopsis}
+\thispagestyle{empty}
+
+\subsection*{Background}
+Technical indicators are widely used in rule-based and algorithmic trading to
+extract information about trends, momentum, and market participation from
+historical price and volume data. Prior research shows that the performance of
+individual indicators is often unstable across market conditions, which has led
+to increased interest in combining multiple indicators within more structured
+trading systems. At the same time, machine-learning-based signal filtering has
+been proposed as a way to refine rule-generated trading signals while preserving
+interpretability and controlling model complexity. In this thesis, these ideas
+are combined in a study of a multi-indicator rule-based trading strategy applied
+to the gold market through the broker symbol \texttt{XAUUSD}. 
+\subsection*{Problem}
+Although rule-based trading strategies are transparent and easy to interpret,
+their profitability has been shown to be mixed in prior research. More complex
+machine-learning approaches may improve signal selection, but they also create
+a greater risk of overfitting and reduced interpretability. This creates a
+relevant problem for trading strategy design: how to improve rule-based
+strategies without introducing unnecessary model complexity. The thesis
+addresses this problem by examining whether a simple decision-tree-based filter
+can be used to screen rule-generated signals in a controlled and interpretable
+way. 
+\subsection*{Research Question}
+The thesis investigates how the confidence of a machine-learning-based signal
+evaluation model relates to the out-of-sample performance of a rule-based
+trading strategy on the gold market. More specifically, the study examines whether
+a decision tree can serve as a simple and interpretable model for assessing the
+quality of candidate trade signals on the basis of indicator-derived features and
+rule states. The purpose is not to replace the underlying rule-based strategy,
+but to evaluate whether the confidence produced by a transparent machine-
+learning layer can distinguish between lower-quality and higher-quality trading
+signals under controlled backtesting conditions.
+\subsection*{Method}
+To answer the research question, the study adopts an experimental research
+strategy implemented through quantitative analysis of secondary data. Historical
+H1 bar data for XAUUSD are retrieved from a running MetaTrader 5 terminal via
+the official MetaTrader 5 Python integration module. The analysis proceeds in
+three stages. First, OHLC, volume, and spread data are transformed into
+indicator-derived features corresponding to EMA, RSI, MACD, DMI, KST, and
+MFI, which are used to generate rule-based buy, sell, and hold signals. Second,
+signal evaluation is formulated as a supervised classification task in which each
+candidate trade signal constitutes one observation, and a decision tree is trained
+in Python to estimate the probability that a signal will lead to a favorable
+realised outcome under the predefined exit logic. Third, the predicted
+confidence scores are divided into ordered ranges, and the final strategy is
+evaluated out of sample in a Python backtesting pipeline using the same market
+data, transaction-cost assumptions, and exit rules across all confidence
+groups.
+\subsection*{Result}
+The final experiment used \texttt{XAUUSD} H1 data from January 2022 to
+December 2024, with a held-out out-of-sample period beginning on 28 May 2024.
+The unfiltered multi-indicator baseline remained profitable out of sample, but
+the strongest decision-tree confidence band outperformed that baseline on total
+return, Sharpe ratio, win rate, and profit factor.
+\subsection*{Discussion}
+The confidence ranges did not form a perfectly increasing ordering, which means
+that the decision-tree score should not be interpreted as a simple
+``higher-is-better'' measure. Instead, the results suggest that the confidence
+score contained useful but imperfect information for separating stronger from
+weaker candidate signals in the selected \texttt{XAUUSD} H1 setting.

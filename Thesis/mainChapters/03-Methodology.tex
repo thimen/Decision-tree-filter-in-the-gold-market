@@ -1,0 +1,400 @@
+\chapter{Methodology}
+\label{chapter:Methodology}
+
+
+%The third chapter can be about methodology and discuss research strategies, data collection methods and data analysis methods. A simple overview of the relationships between these is given in Figure \ref{fig:methods}.
+
+%\begin{figure} [h]
+%\centering
+%\includegraphics[scale = 0.2]%{figures/thesisFigures/methods.png}
+%\caption{Research Strategies and %Research Methods}
+% \label{fig:methods}
+%\end{figure}
+
+% \guidelines{The information in the boxes are guidelines for writing the methodology section. Please write text corresponding to each box right below the box. The text should be strictly related to your research topic, and therefore you should avoid making general considerations about research methodology. Please base your answers by citing appropriate literature on research methodology. Ex: 
+% \href{https://link.springer.com/book/10.1007/978-3-319-10632-8}{An Introduction to Design Sciences}
+
+% \guidelines{Please do not delete the boxes. To compile a clean version of your text without the guidelines, please comment the line \\ 
+% {\em usepackage\{todonotes\}} in the file usepackages.tex and uncomment the line 
+%\\ {\em usepackage[disable]\{todonotes\}}.} 
+%\guidelines{Please try to follow the guidelines for the number of pages in each section. The number of pages are with respect to the clean version of the text. That is, without boxes. }
+%\guidelines{You can rename some of the sections to fit better your project.}
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% RESEARCH STRATEGY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+\section{Research Strategy}
+
+The aim of this study is to investigate how the confidence of a machine-learning-based signal filter relates to the out-of-sample performance of a rule-based trading strategy on the gold market. To address this research question, the study adopts an experimental research strategy.
+
+Johannesson and Perjons (2014) describe experiments as a research strategy used to investigate cause-and-effect relationships by manipulating one or more independent variables and observing their effects on one or more dependent variables, while controlling other factors that may influence the outcome \citep{johannesson2014design}.
+
+In line with this description, the experiment conducted in this study examines how the confidence of a machine-learning-based signal filter relates to the performance of a rule-based trading strategy. Rather than treating the use of machine learning as a binary independent variable, the independent variable is defined as the confidence score produced by the decision-tree classifier for each candidate trade signal. This confidence is operationalized as the predicted probability that a signal will lead to a favorable realized outcome under the predefined exit logic.
+
+To analyze its effect, the confidence scores are divided into five ordered ranges, from lower-confidence signals to higher-confidence signals. The dependent variables consist of quantitative backtesting outcomes calculated separately for each confidence range, including win rate, profit factor, average trade return, Sharpe ratio, and maximum drawdown. The same underlying market data, rule-generation logic, and evaluation procedure are used across all ranges.
+
+Johannesson and Perjons (2014) distinguish between research strategies, which describe the overall approach to investigating a research problem, and research methods, which concern how data are collected and analysed within that strategy. Following this distinction, the experimental strategy is implemented using a quantitative research method based on computational analysis. Trading strategies are implemented and evaluated on historical market data using a consistent backtesting framework, as further described in the subsequent sections.
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% SOFTWARE USE AND IMPLEMENTATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+
+\section{Software Use and Implementation}
+
+
+MetaTrader~5 (MT5) is the platform used for market-data access and deployment
+compatibility in this thesis. MT5 provides broker-supplied historical data, an
+algorithmic trading runtime through \emph{Expert Advisors} (EAs), and a built-in
+\emph{Strategy Tester} for historical simulation, analysis and optimization
+\citep{mt5_testing_help, mql5_runtime_testing}. In the present work, MT5 is used
+to retrieve the broker-specific \texttt{XAUUSD} data and to provide a realistic
+deployment target for the exported strategy artefact.
+
+The reported experiments are implemented primarily in Python rather than inside
+the MT5 Strategy Tester. This choice was made because the study required
+deterministic batch execution, structured export of intermediate artefacts, and
+transparent control of the machine-learning workflow, including feature
+construction, labelled-signal generation, time-series validation, confidence
+binning, and out-of-sample evaluation. For these steps, Python is used together
+with the official MetaTrader~5 Python integration module
+\citep{mt5_python_integration}. This module provides functions for connecting to
+a running MT5 terminal and requesting arrays of bars for a specified symbol and
+timeframe \citep{mt5_python_integration, mt5_copy_rates_range}.
+
+The implementation therefore follows a two-stage pipeline consistent with the
+research goal of filtering rule-based signals with a simple machine-learning
+model. First, the baseline rule-based strategy and the decision-tree filter are
+developed and evaluated in Python using H1 data for the broker symbol
+\texttt{XAUUSD}, which is used in this thesis as the platform-specific tradable
+representation of the gold market \citep{mt5_copy_rates_range}. Second, the
+trained decision tree is exported as a set of explicit if-then threshold rules
+and translated into an equivalent MQL5 Expert Advisor so that the same logic
+can be inspected and validated in MT5. This preserves interpretability while
+keeping the core experimental pipeline reproducible and easy to audit.
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DATA COLLECTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+
+
+\section{Data Collection}
+
+In this work, \emph{secondary data collection} was used, meaning that the
+historical market data analysed in the experiments were compiled by a third
+party rather than generated by the researchers themselves
+\citep{johnston2014secondary, taherdoost2021data}. The study uses historical
+price data for the broker symbol \texttt{XAUUSD} on the H1 timeframe (hourly
+bars), retrieved from a running MetaTrader~5 terminal via the official
+MetaTrader~5 Python integration module
+\citep{mt5_python_integration, mt5_copy_rates_range}.
+
+The requested data window covers the period from 1 January 2022, 00:00 UTC, to
+31 December 2024, 23:00 UTC. Because hourly bars are unavailable during market
+closures, the retrieved dataset begins at 3 January 2022, 01:00 UTC and ends at
+31 December 2024, 23:00 UTC, yielding 17,749 hourly observations. All available
+observations for the specified symbol and timeframe within this predefined
+window were included in the dataset. The selection policy is therefore
+objective, since no manual selection of specific subperiods, market regimes, or
+individual observations was performed.
+
+Data were requested as OHLCV-style bars consisting of open, high, low, and
+close together with the MT5 fields \texttt{tick\_volume},
+\texttt{spread}, and \texttt{real\_volume}. The MT5 Python function
+\texttt{copy\_rates\_range} returns these fields in a structured array
+\citep{mt5_copy_rates_range, mql5_mqlrates_struct}. The documentation also
+states that MT5 stores bar open times in UTC. Therefore, the Python
+\texttt{datetime} objects used for bounded requests were also created in UTC to
+avoid unintended local-time offsets \citep{mt5_copy_rates_range}.
+
+This choice aligns the collected dataset with the environment used for both
+analysis and deployment, reducing inconsistencies that can arise when strategy
+development uses a data source that differs from the execution platform. A
+three-year H1 window was selected because it provides enough observations for a
+meaningful out-of-sample evaluation while still allowing repeated end-to-end
+experiments to be executed in a practical amount of time.
+
+Because \texttt{XAUUSD} is typically offered as a broker-specific instrument
+(e.g., a CFD or index-derived contract), the field \texttt{real\_volume} may be
+zero for non-exchange instruments. In such cases, \texttt{tick\_volume} serves
+as a platform-provided proxy for market activity
+\citep{mql5_timeseries_ohlcvs, mql5_mqlrates_struct}. The dataset was
+therefore collected with both volume fields, but analyses and features that
+depend on volume were defined to use \texttt{tick\_volume} when
+\texttt{real\_volume} was unavailable.
+
+No synthetic dataset was generated in the sense of creating artificial market
+observations. However, the collected raw data were further processed through
+preprocessing and feature construction in preparation for analysis. These
+derived variables should therefore be understood as transformations of the
+original historical dataset rather than as a separate synthesised dataset.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% DATA ANALYSIS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\section{Data analysis}
+
+In this work, \emph{quantitative analysis of secondary data} is chosen as the
+method of data analysis, since the research question is addressed by measuring
+and comparing numerical performance outcomes derived from historical market
+data \citep{johnston2014secondary, taherdoost2021data}. The analysis is carried
+out on H1 bars for \texttt{XAUUSD} and proceeds in three stages: (i) indicator
+and rule computation, (ii) supervised learning of a signal evaluation model,
+and (iii) out-of-sample strategy evaluation by backtesting.
+
+First, the OHLC and volume fields are transformed into indicator-derived
+features corresponding to the technical indicators defined in the background
+chapter (EMA, RSI, MACD, DMI, KST, MFI). From these features, the baseline
+rule-based strategy generates discrete signals (buy/sell/hold) at each H1 time
+step. These rule outputs are retained as inputs to the classifier, since the
+purpose of the machine learning stage is not to replace the transparent
+technical rules, but to evaluate the quality of the candidate trade signals they
+generate.
+
+Second, each candidate trade signal is treated as one observation in a
+supervised classification problem. Features are constructed from indicator
+values and rule states available at the time the signal is generated, and a
+target label is assigned based on the subsequent realized outcome under a
+pre-defined and time-consistent rule, such as whether the trade produces a
+favorable net result after costs under the selected holding and exit logic.
+
+A decision tree classifier is then trained in Python. To reduce the risk of
+overfitting, tree complexity is controlled through a grid over maximum depth
+($2$--$6$) and minimum samples per leaf ($5$, $10$, $20$, $50$), and model
+selection is performed using three time-series validation splits. Rather than
+treating the machine learning component only as a binary accept-or-reject
+filter, the analysis focuses on the confidence score produced by the classifier
+for each candidate signal. In this study, confidence is operationalized as the
+predicted probability that a candidate signal belongs to the favorable outcome
+class. The final selected tree used a maximum depth of $3$ and a minimum leaf
+size of $50$.
+
+Third, the predicted confidence scores are divided into five ordered ranges,
+from lower-confidence signals to higher-confidence signals using quantile-based
+binning. For each confidence range, the final trading strategy is evaluated out
+of sample in the Python backtesting pipeline under the same transaction-cost
+and exit assumptions. The held-out out-of-sample market window begins on
+28 May 2024, 14:00 UTC and ends on 31 December 2024, 23:00 UTC. The same
+execution model, transaction-cost assumptions, and exit rules are used across
+all confidence ranges so that differences in performance can be attributed to
+the confidence grouping rather than to changes in surrounding conditions.
+
+The quantitative outcomes extracted from each backtest include cumulative
+return, volatility, Sharpe ratio, maximum drawdown, number of trades, win
+rate, average trade return, and profit factor. Results are presented using
+equity curves and drawdown curves, together with summary tables comparing the
+performance metrics across the five confidence ranges. This makes it possible
+to evaluate whether higher model confidence is associated with more favorable
+trading performance.
+
+To reduce bias, time causality is enforced in feature computation, a held-out
+out-of-sample evaluation period is isolated from both training and model
+selection, and the backtesting engine settings are kept fixed across all
+confidence groups \citep{mt5_copy_rates_range}.
+In this way, differences in observed performance can be attributed more
+credibly to variation in model confidence rather than to variation in the
+surrounding trading framework.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ALTERNATIVE RESEARCH STRATEGIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\section{Alternative Research Strategies and Methods}
+
+In addition to the experimental research strategy adopted in this study, other research strategies described in the literature could, in principle, have been used to address the research question \citep{johannesson2014design}.
+
+One alternative research strategy is the case study strategy. Case studies are described as a research strategy used for in-depth investigation of a phenomenon in its real-world context, often focusing on a limited number of cases \citep{johannesson2014design}. Applied to the present research topic, a case study strategy could have involved an in-depth examination of the behaviour of a specific rule-based trading strategy during a particular market period. However, case studies are described as primarily supporting detailed and contextual investigation rather than controlled manipulation of variables \citep{johannesson2014design}. As the research question in this study concerns the effect of introducing a machine-learning-based filter under controlled conditions, a case study strategy was therefore not selected.
+
+Another alternative research strategy is survey research. Surveys are described as a strategy used to collect data from a large number of respondents, typically through questionnaires, in order to describe or analyse opinions, attitudes, or self-reported behaviours \citep{johannesson2014design}. In the context of this study, a survey strategy could have been used to collect assessments from practitioners regarding the use of machine learning in trading strategies. However, survey research is described as focusing on self-reported data rather than direct measurement of system or artefact performance \citep{johannesson2014design}. Since the objective of this study is to analyse trading strategy performance based on empirical results from historical data, a survey research strategy was not adopted.
+
+Regarding research methods, a distinction is made between quantitative and qualitative data collection and analysis methods \citep{johannesson2014design}. Qualitative methods such as interviews or interpretative analysis are described as suitable for studying meanings, experiences, and interpretations \citep{johannesson2014design}. In the context of the present study, such methods could have been used to analyse expert interpretations of trading rules or machine-learning-based decision support. However, the study instead applies quantitative data collection and analysis based on historical market data, where numerical data are analysed using statistical or computational techniques \citep{johannesson2014design}. This choice aligns with the study’s focus on analysing measurable performance outcomes produced by trading strategies.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% VALIDITY AND RELIABILITY
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+\section{Validity and Reliability}
+
+The validity of this study concerns whether the experimental design supports
+meaningful conclusions about how the confidence from a machine-learning-based
+signal evaluation model relates to the performance of a rule-based trading
+strategy. Johannesson and Perjons (2014) describe validity in experimental
+research in relation to whether observed effects can be attributed to the
+independent variable rather than to uncontrolled factors
+\citep{johannesson2014design}. In this study, internal validity is addressed by
+structuring the experiment so that the decision-tree confidence score is the
+primary independent variable, while market data, indicator definitions,
+transaction cost assumptions, exit logic, and backtesting procedures are kept
+consistent across all confidence ranges. This reduces the risk that observed
+performance differences are caused by confounding variables rather than by
+differences in model confidence \citep{johannesson2014design}.
+
+At the same time, some threats to validity remain. The results may still be
+influenced by the selected historical period, the broker-specific instrument
+representation, and the fact that the strategy is evaluated in a controlled
+backtesting environment rather than under live trading conditions. Johannesson
+and Perjons notes that experiments often achieve stronger internal validity
+through control, but that this may come at the expense of external validity
+when the evaluation setting differs from real-world practice
+\citep{johannesson2014design}. The findings should therefore be interpreted as
+applying to the defined experimental setting and not assumed to generalise
+directly to other brokers, assets, time periods, or execution environments.
+
+Reliability in this study refers to the consistency and reproducibility of the
+experimental procedure and its results. Johannesson and Perjons emphasize that
+reliability is strengthened when research procedures are clearly specified and
+can be repeated \citep{johannesson2014design}. To support reliability, all
+experiments are conducted using standardised and well-documented procedures,
+including fixed data preprocessing steps, deterministic indicator calculations,
+time-consistent feature construction, and a consistent backtesting framework.
+The same software implementation, datasets, transaction-cost assumptions, and
+parameter settings are applied across all confidence groups, and the
+experimental design, evaluation metrics, and analysis procedures are documented
+in sufficient detail to support independent replication.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% ETHICAL CONSIDERATIONS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+
+
+
+
+\section{Ethical Considerations}
+
+This study is based on the analysis of historical financial market data and does not involve human participants, personal data, or interaction with individuals. As a result, several common ethical concerns in empirical research, such as voluntary participation, informed consent, anonymity, and confidentiality, are not applicable in this context. Johannesson and Perjons (2014) emphasise that ethical considerations in research depend on the type of artefact studied and the practices affected by its use, and that not all ethical principles are relevant in every research setting. 
+
+Nevertheless, ethical considerations remain relevant regarding the potential effects and uses of the research results. Johannesson and Perjons note that artefacts studied in design-oriented and empirical research can have intended effects as well as unintended side effects on their environment and stakeholders \citep{johannesson2014design}. 
+
+By clearly communicating the scope and constraints of the findings, the study aligns with the principle that research results should be pre- sented responsibly, with awareness of how they may be interpreted and used by others \citep{johannesson2014design}.

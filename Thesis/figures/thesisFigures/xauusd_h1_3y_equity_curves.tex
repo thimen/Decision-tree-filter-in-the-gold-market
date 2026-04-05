@@ -1,0 +1,52 @@
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.88\textwidth,
+    height=0.50\textwidth,
+    xlabel={Out-of-sample H1 bar index},
+    ylabel={Equity},
+    xmin=1,
+    grid=both,
+    grid style={line width=.1pt, draw=gray!20},
+    major grid style={line width=.2pt, draw=gray!35},
+    legend style={
+        at={(0.98,0.02)},
+        anchor=south east,
+        legend columns=1,
+        draw=none,
+        font=\footnotesize
+    },
+    tick label style={font=\small},
+    label style={font=\small},
+]
+\addplot[
+    very thick,
+    color=blue!70!black,
+] table[
+    col sep=comma,
+    x=bar_index,
+    y=equity_multi_indicator_vote_oos,
+] {figures/thesisFigures/data/xauusd_h1_3y_equity_oos.csv};
+\addlegendentry{Multi-indicator vote}
+
+\addplot[
+    very thick,
+    color=red!75!black,
+] table[
+    col sep=comma,
+    x=bar_index,
+    y=equity_tree_confidence_range_4_oos,
+] {figures/thesisFigures/data/xauusd_h1_3y_equity_oos.csv};
+\addlegendentry{Tree confidence range 4}
+
+\addplot[
+    thick,
+    color=black!65,
+    dashed,
+] table[
+    col sep=comma,
+    x=bar_index,
+    y=equity_buy_and_hold_oos,
+] {figures/thesisFigures/data/xauusd_h1_3y_equity_oos.csv};
+\addlegendentry{Buy and hold}
+\end{axis}
+\end{tikzpicture}

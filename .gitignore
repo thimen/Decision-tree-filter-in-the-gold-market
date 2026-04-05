@@ -1,0 +1,36 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Local environments and secrets
+.venv/
+.env
+
+# Experiment outputs
+results_*/
+
+# LaTeX build artifacts
+Thesis/*.aux
+Thesis/*.bbl
+Thesis/*.blg
+Thesis/*.fdb_latexmk
+Thesis/*.fls
+Thesis/*.lof
+Thesis/*.log
+Thesis/*.lot
+Thesis/*.out
+Thesis/*.toc
+Thesis/*.pdf
+

@@ -1,0 +1,69 @@
+{
+  "results_dir": "results_thesis_us500_h1",
+  "experiment": {
+    "mt5": {
+      "terminal_path": null,
+      "login": null,
+      "password": null,
+      "server": null,
+      "timeout_ms": 60000,
+      "portable": false
+    },
+    "market_data": {
+      "symbol": "US500",
+      "timeframe": "H1",
+      "bars": 20000,
+      "utc_from": "2019-12-17T12:00:00Z",
+      "utc_to": "2026-02-24T12:00:00Z"
+    },
+    "strategy": {
+      "ema_fast": 19,
+      "ema_slow": 27,
+      "vote_k": 3,
+      "oscillator_vote_mode": "trend",
+      "rsi_period": 21,
+      "rsi_buy": 45.0,
+      "rsi_sell": 55.0,
+      "macd_fast": 21,
+      "macd_slow": 29,
+      "macd_signal": 9,
+      "dmi_period": 14,
+      "mfi_period": 14,
+      "mfi_buy": 45.0,
+      "mfi_sell": 55.0,
+      "include_ema_vote": true,
+      "kst_roc1": 10,
+      "kst_roc2": 15,
+      "kst_roc3": 20,
+      "kst_roc4": 30,
+      "kst_sma1": 10,
+      "kst_sma2": 10,
+      "kst_sma3": 10,
+      "kst_sma4": 15,
+      "kst_signal": 9
+    },
+    "labels": {
+      "horizon": null,
+      "threshold": 0.0
+    },
+    "tree": {
+      "enabled": true,
+      "max_depth_grid": [2, 3, 4, 5, 6],
+      "min_samples_leaf_grid": [5, 10, 20, 50],
+      "min_training_samples": 60,
+      "random_state": 42,
+      "holdout_ratio": 0.2,
+      "time_series_splits": 3,
+      "confidence_bin_count": 5,
+      "confidence_binning_mode": "quantile"
+    },
+    "backtest": {
+      "cost_bps": 5.0,
+      "initial_cash": 1.0,
+      "trade_size_pct": 0.01,
+      "long_only": false,
+      "take_profit_pct": 0.06,
+      "stop_loss_pct": 0.03
+    }
+  }
+}
