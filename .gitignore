@@ -22,15 +22,4 @@ dist/
 results_*/
 
 # LaTeX build artifacts
-Thesis/*.aux
-Thesis/*.bbl
-Thesis/*.blg
-Thesis/*.fdb_latexmk
-Thesis/*.fls
-Thesis/*.lof
-Thesis/*.log
-Thesis/*.lot
-Thesis/*.out
-Thesis/*.toc
-Thesis/*.pdf
-
+Thesis/
