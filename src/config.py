@@ -3,9 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 
-THESIS_UTC_FROM = "2019-12-17T12:00:00Z"
-THESIS_UTC_TO = "2026-02-24T12:00:00Z"
-THESIS_RESULTS_DIR = "results_thesis_us500_h1"
+THESIS_UTC_FROM = "2022-01-01T00:00:00Z"
+THESIS_UTC_TO = "2024-12-31T23:00:00Z"
+THESIS_RESULTS_DIR = "results_xauusd_h1_3y"
 MARKET_DATA_TIMEZONE = "UTC"
 
 
@@ -105,9 +105,9 @@ def thesis_experiment_config() -> ExperimentConfig:
     return ExperimentConfig(
         mt5=MT5Config(),
         market_data=MarketDataConfig(
-            symbol="US500",
+            symbol="XAUUSD",
             timeframe="H1",
-            bars=20_000,
+            bars=40_000,
             utc_from=THESIS_UTC_FROM,
             utc_to=THESIS_UTC_TO,
         ),

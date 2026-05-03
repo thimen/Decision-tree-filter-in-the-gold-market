@@ -1,5 +1,5 @@
 {
-  "results_dir": "results_thesis_us500_h1",
+  "results_dir": "results_xauusd_h1_3y",
   "experiment": {
     "mt5": {
       "terminal_path": null,
@@ -10,11 +10,11 @@
       "portable": false
     },
     "market_data": {
-      "symbol": "US500",
-      "timeframe": "D1",
-      "bars": 20000,
-      "utc_from": "2019-12-17T12:00:00Z",
-      "utc_to": "2026-02-24T12:00:00Z"
+      "symbol": "XAUUSD",
+      "timeframe": "H1",
+      "bars": 40000,
+      "utc_from": "2022-01-01T00:00:00Z",
+      "utc_to": "2024-12-31T23:00:00Z"
     },
     "strategy": {
       "ema_fast": 19,

@@ -30,7 +30,7 @@ class PatternMT5:
         return (1, "error")
 
     def symbol_select(self, symbol, enabled):
-        return enabled and symbol == "US500"
+        return enabled and symbol == "XAUUSD"
 
     def _rows(self, bars: int) -> list[dict[str, float]]:
         base_time = 1704067200
@@ -161,7 +161,7 @@ def test_run_experiment_writes_thesis_aligned_outputs(tmp_path: Path, monkeypatc
 
     with Path(result["config_path"]).open("r", encoding="utf-8") as handle:
         cfg = json.load(handle)
-    assert cfg["market_data"]["symbol"] == "US500"
+    assert cfg["market_data"]["symbol"] == "XAUUSD"
     assert cfg["market_data"]["timeframe"] == "H1"
     assert cfg["market_data_timezone"] == "UTC"
     assert cfg["tree_training"]["enabled"] is True
@@ -179,8 +179,8 @@ def test_write_config_template_matches_thesis_defaults(tmp_path: Path) -> None:
     path = write_config_template(tmp_path / "template.json")
     data = json.loads(path.read_text(encoding="utf-8"))
 
-    assert data["results_dir"] == "results_thesis_us500_h1"
-    assert data["experiment"]["market_data"]["symbol"] == "US500"
+    assert data["results_dir"] == "results_xauusd_h1_3y"
+    assert data["experiment"]["market_data"]["symbol"] == "XAUUSD"
     assert data["experiment"]["market_data"]["timeframe"] == "H1"
     assert data["experiment"]["tree"]["enabled"] is True
     assert data["experiment"]["tree"]["min_training_samples"] == 60
@@ -196,7 +196,7 @@ def test_load_run_spec_reads_mt5_credentials_from_env(tmp_path: Path, monkeypatc
         json.dumps(
             {
                 "experiment": {
-                    "market_data": {"symbol": "US500"},
+                    "market_data": {"symbol": "XAUUSD"},
                     "mt5": {"login": None, "password": None, "server": None},
                 }
             }

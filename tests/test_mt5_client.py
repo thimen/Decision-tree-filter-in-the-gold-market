@@ -27,7 +27,7 @@ class FakeMT5:
         return (1, "error")
 
     def symbol_select(self, symbol, enabled):
-        return symbol == "US500" and enabled
+        return symbol == "XAUUSD" and enabled
 
     def copy_rates_from_pos(self, symbol, timeframe, start_pos, bars):
         del symbol, timeframe, start_pos, bars
@@ -75,7 +75,7 @@ class FakeMT5:
 def test_fetch_rates_from_pos_preserves_thesis_fields() -> None:
     mt5 = FakeMT5()
     with MT5Client(terminal_path="C:/Program Files/MetaTrader 5/terminal64.exe", mt5_module=mt5) as client:
-        df = client.fetch_rates(symbol="US500", timeframe="D1", bars=2)
+        df = client.fetch_rates(symbol="XAUUSD", timeframe="D1", bars=2)
 
     assert mt5.pos_calls == 1
     assert mt5.shutdown_called
@@ -91,7 +91,7 @@ def test_fetch_rates_range_uses_copy_rates_range() -> None:
     mt5 = FakeMT5()
     with MT5Client(terminal_path="C:/Program Files/MetaTrader 5/terminal64.exe", mt5_module=mt5) as client:
         df = client.fetch_rates(
-            symbol="US500",
+            symbol="XAUUSD",
             timeframe="H1",
             bars=100,
             utc_from=datetime(2024, 1, 1, tzinfo=timezone.utc),
@@ -107,7 +107,7 @@ def test_unsupported_timeframe_raises() -> None:
     mt5 = FakeMT5()
     with MT5Client(terminal_path="C:/Program Files/MetaTrader 5/terminal64.exe", mt5_module=mt5) as client:
         with pytest.raises(ValueError, match="Unsupported timeframe"):
-            client.fetch_rates(symbol="US500", timeframe="M99", bars=10)
+            client.fetch_rates(symbol="XAUUSD", timeframe="M99", bars=10)
 
 
 def test_symbol_select_failure_raises() -> None:

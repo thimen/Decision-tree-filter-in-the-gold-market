@@ -2,7 +2,7 @@
 
 This repository now follows the thesis workflow directly:
 
-1. Pull `US500` `H1` data from MetaTrader 5.
+1. Pull `XAUUSD` `H1` data from MetaTrader 5.
 2. Preserve OHLC, tick volume, spread, and real volume.
 3. Build `EMA`, `RSI`, `MACD`, `DMI`, `KST`, and `MFI`.
 4. Generate discrete `buy`, `sell`, and `hold` rule signals.
@@ -19,8 +19,8 @@ This repository now follows the thesis workflow directly:
 - [src/tree/__init__.py](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/src/tree/__init__.py): single public entrypoint for chronological tree training, confidence bins, and MQL export.
 - [src/config.py](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/src/config.py): canonical thesis defaults and the typed run specification.
 - [mql5/Experts/DecisionTreeMultiIndicatorEA.mq5](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/mql5/Experts/DecisionTreeMultiIndicatorEA.mq5): optional MT5 execution scaffold using the exported tree gate.
-- [configs/run_config.thesis_us500_h1.json](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.thesis_us500_h1.json): thesis reproduction config.
-- [configs/run_config.xauusd_h4.json](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.xauusd_h4.json): cleaned XAUUSD H4 thesis config.
+- [configs/run_config.xauusd_h1.json](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.xauusd_h1.json): thesis reproduction config.
+- [configs/run_config.xauusd_h4.json](/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.xauusd_h4.json): optional XAUUSD H4 comparison config.
 
 ## Code Layout
 
@@ -41,19 +41,19 @@ On macOS, use the Windows Python inside the same Wine prefix as MT5 for real dat
 ## Thesis Run
 
 ```bash
-python -m src.experiment --config configs/run_config.thesis_us500_h1.json
+python -m src.experiment --config configs/run_config.xauusd_h1.json
 ```
 
 Wine example:
 
 ```bash
-"$WINE10" "C:\Python311\python.exe" -m src.experiment --config "Z:/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.thesis_us500_h1.json"
+"$WINE10" "C:\Python311\python.exe" -m src.experiment --config "Z:/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.xauusd_h1.json"
 ```
 
 Quick connection probe:
 
 ```bash
-"$WINE10" "C:\Python311\python.exe" -m src.check_mt5_connection --config "Z:/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.thesis_us500_h1.json"
+"$WINE10" "C:\Python311\python.exe" -m src.check_mt5_connection --config "Z:/Users/thimthor/Desktop/skola/Examensarbete/Kod1/configs/run_config.xauusd_h1.json"
 ```
 
 If MT5 on your machine does not let the Python bridge reuse the GUI login, set the broker account credentials through environment variables:
