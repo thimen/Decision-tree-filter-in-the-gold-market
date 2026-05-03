@@ -11,8 +11,14 @@ enum OscillatorVoteMode
 
 input group "Execution"
 input double InpLots = 0.10;
+input bool InpUsePercentSizing = true;
+input double InpTradeSizePct = 0.01;
+input bool InpAllowMinVolumeRoundUp = false;
 input int InpDeviationPoints = 20;
 input ulong InpMagicNumber = 20260326;
+input bool InpUseTradeWindow = true;
+input datetime InpTradeFrom = D'2024.05.28 14:00';
+input datetime InpTradeTo = D'2024.12.31 23:00';
 input bool InpUseTreeFilter = true;
 input double InpConfidenceMin = 0.0;
 input double InpConfidenceMax = 1.0;
@@ -71,6 +77,71 @@ bool CopyValue(const int handle, const int buffer, const int shift, double &valu
 double NormalizePrice(const double price)
 {
    return NormalizeDouble(price, (int)SymbolInfoInteger(_Symbol, SYMBOL_DIGITS));
+}
+
+
+double NormalizeVolumeToStep(const double raw_volume, const bool allow_min_round_up)
+{
+   double min_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MIN);
+   double max_volume = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_MAX);
+   double step = SymbolInfoDouble(_Symbol, SYMBOL_VOLUME_STEP);
+   if(min_volume <= 0.0 || max_volume <= 0.0 || step <= 0.0)
+      return 0.0;
+
+   if(raw_volume < min_volume && !allow_min_round_up)
+      return 0.0;
+
+   double stepped = MathFloor(raw_volume / step) * step;
+   if(stepped < min_volume)
+      stepped = min_volume;
+   if(stepped > max_volume)
+      stepped = max_volume;
+
+   int digits = 0;
+   double probe = step;
+   while(digits < 8 && MathAbs(probe - MathRound(probe)) > 1e-10)
+   {
+      probe *= 10.0;
+      digits++;
+   }
+   return NormalizeDouble(stepped, digits);
+}
+
+
+double ResolveOrderVolume(const int direction)
+{
+   if(!InpUsePercentSizing)
+      return NormalizeVolumeToStep(InpLots, true);
+
+   double equity = AccountInfoDouble(ACCOUNT_EQUITY);
+   double contract_size = SymbolInfoDouble(_Symbol, SYMBOL_TRADE_CONTRACT_SIZE);
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+   double price = (direction == 1 ? ask : bid);
+   if(equity <= 0.0 || contract_size <= 0.0 || price <= 0.0)
+      return 0.0;
+
+   double target_notional = equity * InpTradeSizePct;
+   double raw_volume = target_notional / (contract_size * price);
+   double volume = NormalizeVolumeToStep(raw_volume, InpAllowMinVolumeRoundUp);
+   if(volume <= 0.0)
+   {
+      Print("Skipping trade: percent-sized volume is below symbol minimum. Increase tester deposit, increase InpTradeSizePct, or enable InpAllowMinVolumeRoundUp.");
+   }
+   return volume;
+}
+
+
+bool IsInsideTradeWindow()
+{
+   if(!InpUseTradeWindow)
+      return true;
+
+   datetime closed_bar_time = iTime(_Symbol, PERIOD_CURRENT, 1);
+   if(closed_bar_time <= 0)
+      return false;
+
+   return (closed_bar_time >= InpTradeFrom && closed_bar_time <= InpTradeTo);
 }
 
 
@@ -198,18 +269,25 @@ void OpenManagedPosition(const int direction)
       return;
    }
 
+   double volume = ResolveOrderVolume(direction);
+   if(volume <= 0.0)
+   {
+      Print("Cannot open trade: invalid order volume");
+      return;
+   }
+
    bool ok = false;
    if(direction == 1)
    {
       double stop_loss = NormalizePrice(ask * (1.0 - InpStopLossPct));
       double take_profit = NormalizePrice(ask * (1.0 + InpTakeProfitPct));
-      ok = trade.Buy(InpLots, _Symbol, 0.0, stop_loss, take_profit, "ThesisDecisionTreeEA");
+      ok = trade.Buy(volume, _Symbol, 0.0, stop_loss, take_profit, "ThesisDecisionTreeEA");
    }
    else if(direction == -1)
    {
       double stop_loss = NormalizePrice(bid * (1.0 + InpStopLossPct));
       double take_profit = NormalizePrice(bid * (1.0 - InpTakeProfitPct));
-      ok = trade.Sell(InpLots, _Symbol, 0.0, stop_loss, take_profit, "ThesisDecisionTreeEA");
+      ok = trade.Sell(volume, _Symbol, 0.0, stop_loss, take_profit, "ThesisDecisionTreeEA");
    }
 
    if(!ok)
@@ -219,6 +297,9 @@ void OpenManagedPosition(const int direction)
 
 void EvaluateSignalOnClosedBar()
 {
+   if(!IsInsideTradeWindow())
+      return;
+
    double ema_fast_1 = 0.0;
    double ema_slow_1 = 0.0;
    double rsi_1 = 0.0;
@@ -348,6 +429,21 @@ int OnInit()
    if(InpVoteK <= 0)
    {
       Print("InpVoteK must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpLots <= 0.0)
+   {
+      Print("InpLots must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpTradeSizePct <= 0.0)
+   {
+      Print("InpTradeSizePct must be > 0");
+      return INIT_PARAMETERS_INCORRECT;
+   }
+   if(InpUseTradeWindow && InpTradeFrom > InpTradeTo)
+   {
+      Print("InpTradeFrom must be <= InpTradeTo");
       return INIT_PARAMETERS_INCORRECT;
    }
    if(InpConfidenceMin < 0.0 || InpConfidenceMax > 1.0 || InpConfidenceMin > InpConfidenceMax)

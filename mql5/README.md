@@ -17,6 +17,12 @@ Use the same parameters that produced the Python thesis results. The main thesis
 
 Important EA inputs:
 
+- `InpUsePercentSizing`
+- `InpTradeSizePct`
+- `InpAllowMinVolumeRoundUp`
+- `InpUseTradeWindow`
+- `InpTradeFrom`
+- `InpTradeTo`
 - `InpUseTreeFilter`
 - `InpConfidenceMin`
 - `InpConfidenceMax`
@@ -24,16 +30,30 @@ Important EA inputs:
 - `InpStopLossPct`
 - indicator periods and thresholds matching the Python run
 
+For thesis-equivalent Strategy Tester runs, use percent sizing with
+`InpTradeSizePct=0.01`, matching the Python backtest configuration. Keep
+`InpAllowMinVolumeRoundUp=false` for strict equivalence. If the tester deposit
+is too small for the broker's minimum lot size, the EA skips the trade instead
+of silently oversizing it; increase the tester deposit or report fixed-lot
+results separately.
+
+Use `InpUseTradeWindow=true` to isolate the out-of-sample segment. The final
+Python thesis run uses `InpTradeFrom=2024.05.28 14:00` and
+`InpTradeTo=2024.12.31 23:00`. These MT5 `datetime` inputs are interpreted in
+the Strategy Tester's chart/server time, so verify that the broker time zone
+matches the UTC timestamps used in the Python artefacts or adjust the inputs by
+the broker offset.
+
 Suggested Strategy Tester validation workflow:
 
 1. Run once with `InpUseTreeFilter=false` to compare against the unfiltered multi-indicator baseline.
-2. Run once with `InpUseTreeFilter=true`, `InpConfidenceMin=0.3919597990`, and `InpConfidenceMax=0.3919597990` to validate the strongest thesis band (`Range 4`).
+2. Run once with `InpUseTreeFilter=true`, `InpConfidenceMin=0.4247311828`, and `InpConfidenceMax=0.4247311828` to validate the strongest thesis band (`Range 4`).
 3. Optionally run all five thesis confidence bands:
-   - `Range 1`: `0.1800000000` to `0.1913043478`
-   - `Range 2`: `0.2631578947` to `0.2631578947`
-   - `Range 3`: `0.3620689655` to `0.3863636364`
-   - `Range 4`: `0.3919597990` to `0.3919597990`
-   - `Range 5`: `0.4347826087` to `0.5161290323`
+   - `Range 1`: `0.1757575758` to `0.2268041237`
+   - `Range 2`: `0.3141025641` to `0.3141025641`
+   - `Range 3`: `0.3244680851` to `0.3538461538`
+   - `Range 4`: `0.4247311828` to `0.4247311828`
+   - `Range 5`: `0.5147679325` to `0.5740740741`
 4. Keep the tester mode, spread assumptions, and symbol/timeframe fixed across runs.
 
 MT5-native outputs:

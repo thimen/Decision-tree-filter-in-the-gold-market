@@ -21,51 +21,51 @@ double EvaluateDecisionTreeProbability(
 {
    if (di_gap <= -0.2273920327)
    {
-      if (rsi <= 44.1779346466)
+      if (mfi <= 40.2279891968)
       {
-         if (mfi <= 45.7550163269)
+         if (mfi <= 37.5724086761)
          {
-            return 0.4347826087;
+            return 0.3141025641;
          }
          else
          {
-            return 0.2631578947;
+            return 0.5740740741;
          }
       }
       else
       {
-         if (kst_gap <= 0.6974101067)
+         if (ema_gap <= -0.4018857777)
          {
-            return 0.1913043478;
+            return 0.3244680851;
          }
          else
          {
-            return 0.3620689655;
+            return 0.1757575758;
          }
       }
    }
    else
    {
-      if (adx <= 18.4278078079)
+      if (adx <= 19.3073644638)
       {
-         if (adx <= 16.8642158508)
+         if (rsi <= 56.1263771057)
          {
-            return 0.3919597990;
+            return 0.4247311828;
          }
          else
          {
-            return 0.1800000000;
+            return 0.2268041237;
          }
       }
       else
       {
-         if (macd_gap <= 0.3443053365)
+         if (macd_gap <= 0.3994308114)
          {
-            return 0.5161290323;
+            return 0.5147679325;
          }
          else
          {
-            return 0.3863636364;
+            return 0.3538461538;
          }
       }
    }
