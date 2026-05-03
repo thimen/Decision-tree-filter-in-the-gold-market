@@ -1,6 +1,6 @@
 # Thesis MT5 Experiment
 
-This repository now follows the thesis workflow directly:
+This repository follows this flow:
 
 1. Pull `XAUUSD` `H1` data from MetaTrader 5.
 2. Preserve OHLC, tick volume, spread, and real volume.
